@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -462,12 +462,24 @@ namespace FileTools
         other=3,
     }
 
+    /// <summary>
+    /// 文件信息
+    /// </summary>
     public class FileDetails
     {
+        /// <summary>
+        /// 文件名称
+        /// </summary>
         public string FileName { get; set; }
 
+        /// <summary>
+        /// 文件大小(单位:KB)
+        /// </summary>
         public double FileSize { get; set; }
 
+        /// <summary>
+        /// 文件类型
+        /// </summary>
         public FileType FileType {get;set;}
     }
 
