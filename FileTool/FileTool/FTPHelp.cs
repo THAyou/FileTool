@@ -125,7 +125,7 @@ namespace FileTools
                 {
                     reqFTP.Credentials = new NetworkCredential(Info.FTPUserName, Info.FTPUserPwd);
                 }
-                
+
                 //获取文件大小
                 long totalBytes = GetFileSize(remoteFileName, Info);
 
@@ -268,7 +268,7 @@ namespace FileTools
         /// <param name="ifCredential">是否启用身份验证</param>
         /// <param name="updateProgress">进度条方法</param>
         /// <returns></returns>
-        public static bool FtpUploadFile(FileInfo file, string FtpUserName,string FtpPwd,string Uri, out string FileUri, bool ifCredential=true, Action<int, int> updateProgress = null)
+        public static bool FtpUploadFile(FileInfo file, string FtpUserName, string FtpPwd, string Uri, out string FileUri, bool ifCredential = true, Action<int, int> updateProgress = null)
         {
             FtpWebRequest reqFTP;
             Stream stream = null;
@@ -289,8 +289,8 @@ namespace FileTools
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.KeepAlive = false;
                 reqFTP.UseBinary = true;
-                if(ifCredential)
-                reqFTP.Credentials = new NetworkCredential(FtpUserName, FtpPwd);//用户，密码
+                if (ifCredential)
+                    reqFTP.Credentials = new NetworkCredential(FtpUserName, FtpPwd);//用户，密码
                 reqFTP.Method = WebRequestMethods.Ftp.UploadFile;//向服务器发出下载请求命令
                 reqFTP.ContentLength = finfo.Length;//为request指定上传文件的大小
                 response = reqFTP.GetResponse() as FtpWebResponse;
@@ -357,12 +357,12 @@ namespace FileTools
         /// <param name="Paths"></param>
         /// <param name="FileUri"></param>
         /// <returns></returns>
-        public static bool FtpUploadFile(string ServiceIP, FTPSeviceInfo Info,List<string> Paths, out string FileUri, bool ifCredential, Action<int, int> updateProgress = null)
+        public static bool FtpUploadFile(string ServiceIP, FTPSeviceInfo Info, List<string> Paths, out string FileUri, Action<int, int> updateProgress = null)
         {
             string uri = "ftp://" + Info.FTPServiceIP + "/";
             if (Paths != null && Paths.Count > 1)
             {
-                Paths.ForEach(m => 
+                Paths.ForEach(m =>
                 {
                     if (m != null && m != string.Empty)
                     {
@@ -371,7 +371,7 @@ namespace FileTools
                     }
                 });
             }
-            return FtpUploadFile(new FileInfo(ServiceIP), Info.FTPUserName,Info.FTPUserPwd, uri, out FileUri, true);
+            return FtpUploadFile(new FileInfo(ServiceIP), Info.FTPUserName, Info.FTPUserPwd, uri, out FileUri, true);
         }
 
         /// <summary>
@@ -392,10 +392,10 @@ namespace FileTools
         /// <param name="localFullPathName">本地文件路径</param>
         /// <param name="uri">上传地址</param>
         /// <returns></returns>
-        public static bool FtpUploadFile(string localFullPathName,string uri)
+        public static bool FtpUploadFile(string localFullPathName, string uri)
         {
             string FileUri = string.Empty;
-            return FtpUploadFile(new FileInfo(localFullPathName),uri);
+            return FtpUploadFile(new FileInfo(localFullPathName), uri);
         }
 
 
@@ -409,7 +409,7 @@ namespace FileTools
         /// <param name="FileName">远程文件路径以及名称</param>
         /// <param name="path">服务器文件路径</param>
         /// <returns></returns>
-        public static long GetFileSize(string Uri,FTPSeviceInfo Info)
+        public static long GetFileSize(string Uri, FTPSeviceInfo Info)
         {
             long filesize = 0;
             try
@@ -470,13 +470,13 @@ namespace FileTools
         {
             string url = string.Empty;
             var uriStr = "ftp://" + Info.FTPServiceIP + "/";
-            bool b = RemoteFtpDirExists(uri, Info);
+            uriStr += uri;
+            bool b = RemoteFtpDirExists(uriStr, Info);
             if (b)
             {
                 return true;
             }
-            uriStr += uri;
-            MakeDir(uri, Info.FTPUserName, Info.FTPUserPwd);
+            MakeDir(uriStr, Info.FTPUserName, Info.FTPUserPwd);
             return true;
         }
 
@@ -501,7 +501,7 @@ namespace FileTools
                     }
                 });
             }
-            else if(Paths.Count==1)
+            else if (Paths.Count == 1)
             {
                 MakeDir(Paths[0], Info);
             }
@@ -518,7 +518,7 @@ namespace FileTools
         /// <param name="FtpUserName"></param>
         /// <param name="FtpUserPwd"></param>
         /// <returns></returns>
-        public static bool RemoteFtpDirExists(string uri, string FtpUserName,string FtpUserPwd)
+        public static bool RemoteFtpDirExists(string uri, string FtpUserName, string FtpUserPwd)
         {
             string url = string.Empty;
             url = uri;
@@ -564,7 +564,7 @@ namespace FileTools
         /// <param name="FTPUserPwd">密码</param>
         /// <param name="newFileName">新文件名</param>
         /// <returns></returns>
-        public static bool FileRename(string uri,string FTPUserName,string FTPUserPwd, string newFileName)
+        public static bool FileRename(string uri, string FTPUserName, string FTPUserPwd, string newFileName)
         {
             bool success = false;
             FtpWebRequest ftpWebRequest = null;
@@ -599,6 +599,18 @@ namespace FileTools
             return success;
         }
 
+        /// <summary>
+        /// 重命名
+        /// </summary>
+        /// <param name="uri">文件Uri</param>
+        /// <param name="newFileName">新文件名</param>
+        /// <param name="Info">服务器信息</param>
+        /// <returns></returns>
+        public static bool FileRename(string uri, string newFileName, FTPSeviceInfo Info)
+        {
+            return FileRename(uri, Info.FTPUserName, Info.FTPUserPwd, newFileName);
+        }
+
 
         /// <summary>
         /// 重命名
@@ -627,7 +639,7 @@ namespace FileTools
                 uri = paths[0];
             }
             uriStr += uri;
-           return FileRename(uriStr, Info.FTPUserName, Info.FTPUserPwd, newFileName);
+            return FileRename(uriStr, Info.FTPUserName, Info.FTPUserPwd, newFileName);
         }
 
         /// <summary>
@@ -712,7 +724,7 @@ namespace FileTools
         /// <param name="paths"></param>
         /// <param name="FileName"></param>
         /// <returns></returns>
-        public static bool FileDelete(FTPSeviceInfo Info,List<string> paths,string FileName)
+        public static bool FileDelete(FTPSeviceInfo Info, List<string> paths, string FileName)
         {
             string uri = string.Empty;
             var uriStr = "ftp://" + Info.FTPServiceIP + "/";

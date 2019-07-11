@@ -71,7 +71,7 @@ namespace FileTools
                 List<string> UpLoadPaths = ActionName;
                 UpLoadPaths.Add(DateTime.Now.ToString("yyyyMMdd"));
                 //上传文件
-                var IsSuccess = FTPHelp.FtpUploadFile(ParhAndFileName, FTPInfo, UpLoadPaths, out resultUri,true);
+                var IsSuccess = FTPHelp.FtpUploadFile(ParhAndFileName, FTPInfo, UpLoadPaths, out resultUri);
                 //上传成功，删除临时文件
                 if (IsSuccess)
                 {
