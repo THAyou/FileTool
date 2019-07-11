@@ -22,7 +22,7 @@ namespace FileTools
         /// <param name="size">已下载文件流大小</param>
         /// <param name="updateProgress">报告进度的处理(第一个参数：总大小，第二个参数：当前进度)</param>
         /// <returns>是否下载成功</returns>
-        private static bool FtpBrokenDownload(string remoteFileName, string localFileName, FTPSeviceInfo Info, bool ifCredential, long size, Action<int, int> updateProgress = null)
+        public static bool FtpBrokenDownload(string remoteFileName, string localFileName, FTPSeviceInfo Info, bool ifCredential, long size, Action<int, int> updateProgress = null)
         {
             FtpWebRequest reqFTP;
             Stream ftpStream = null;
@@ -32,10 +32,6 @@ namespace FileTools
             {
 
                 outputStream = new FileStream(localFileName, FileMode.Append);
-                if (Info.FTPServiceIP == null || Info.FTPServiceIP.Trim().Length == 0)
-                {
-                    throw new Exception("ftp下载目标服务器地址未设置！");
-                }
                 Uri uri = new Uri(remoteFileName);
 
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
@@ -111,7 +107,7 @@ namespace FileTools
         /// <param name="ifCredential">是否启用身份验证（false：表示允许用户匿名下载）</param>
         /// <param name="updateProgress">报告进度的处理(第一个参数：总大小，第二个参数：当前进度)</param>
         /// <returns>是否下载成功</returns>
-        private static bool FtpDownload(string remoteFileName, string localFileName, bool ifCredential, FTPSeviceInfo Info, Action<int, int> updateProgress = null)
+        public static bool FtpDownload(string remoteFileName, string localFileName, bool ifCredential, FTPSeviceInfo Info, Action<int, int> updateProgress = null)
         {
             FtpWebRequest reqFTP;
             Stream ftpStream = null;
@@ -120,10 +116,6 @@ namespace FileTools
             try
             {
                 outputStream = new FileStream(localFileName, FileMode.Create);
-                if (Info.FTPServiceIP == null || Info.FTPServiceIP.Trim().Length == 0)
-                {
-                    throw new Exception("ftp下载目标服务器地址未设置！");
-                }
                 Uri uri = new Uri(remoteFileName);
 
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
@@ -189,15 +181,17 @@ namespace FileTools
             }
         }
 
+
         /// <summary>
-        /// 从FTP服务器下载文件，指定本地路径和本地文件名
+        /// FTP服务器下载文件，指定本地路径和本地文件名
         /// </summary>
         /// <param name="remoteFileName">远程文件名</param>
         /// <param name="localFileName">保存本地的文件名（包含路径）</param>
+        /// <param name="Info">服务器信息</param>
         /// <param name="ifCredential">是否启用身份验证（false：表示允许用户匿名下载）</param>
-        /// <param name="updateProgress">报告进度的处理(第一个参数：总大小，第二个参数：当前进度)</param>
-        /// <param name="brokenOpen">是否断点下载：true 会在localFileName 找是否存在已经下载的文件，并计算文件流大小</param>
-        /// <returns>是否下载成功</returns>
+        /// <param name="brokenOpen">是否支持断点下载</param>
+        /// <param name="updateProgress">>报告进度的处理(第一个参数：总大小，第二个参数：当前进度)</param>
+        /// <returns></returns>
         public static bool FtpDownload(string remoteFileName, string localFileName, FTPSeviceInfo Info, bool ifCredential, bool brokenOpen, Action<int, int> updateProgress = null)
         {
             if (brokenOpen)
@@ -224,20 +218,57 @@ namespace FileTools
                 return FtpDownload(remoteFileName, localFileName, ifCredential, Info, updateProgress);
             }
         }
+
+        /// <summary>
+        /// 从FTP服务器下载文件，指定本地路径和本地文件名
+        /// </summary>
+        /// <param name="remoteFileName">远程文件名</param>
+        /// <param name="localFileName">保存本地的文件名（包含路径）</param>
+        /// <param name="Info">服务器信息</param>
+        /// <returns></returns>
+        public static bool FtpDownload(string remoteFileName, string localFileName, FTPSeviceInfo Info)
+        {
+            return FtpDownload(remoteFileName, localFileName, Info, true, false);
+        }
+
+        /// <summary>
+        /// 从FTP服务器下载文件，指定本地路径和本地文件名
+        /// </summary>
+        /// <param name="remoteFileName">远程文件名</param>
+        /// <param name="localFileName">保存本地的文件名（包含路径）</param>
+        /// <param name="FtpUserName">用户名</param>
+        /// <param name="FtpUserPwd">密码</param>
+        /// <returns></returns>
+        public static bool FtpDownload(string remoteFileName, string localFileName, string FtpUserName, string FtpUserPwd)
+        {
+            FTPSeviceInfo Info = new FTPSeviceInfo { FTPUserName = FtpUserName, FTPUserPwd = FtpUserPwd };
+            return FtpDownload(remoteFileName, localFileName, Info);
+        }
+
+        /// <summary>
+        /// 从FTP服务器下载文件，指定本地路径和本地文件名(不需要验证)
+        /// </summary>
+        /// <param name="remoteFileName">远程文件名</param>
+        /// <param name="localFileName">保存本地的文件名（包含路径）</param>
+        /// <returns></returns>
+        public static bool FtpDownload(string remoteFileName, string localFileName)
+        {
+            return FtpDownload(remoteFileName, localFileName, new FTPSeviceInfo(), false, false);
+        }
         #endregion
 
         #region 文件上传方法组
         /// <summary>
         /// 上传文件到FTP服务器
         /// </summary>
-        /// <param name="localFullPathName">本地文件路径以及文件名</param>
+        /// <param name="file">文件对象</param>
         /// <param name="Info">登录信息以及服务器IP</param>
         /// <param name="Paths">上传服务器路径</param>
         /// <param name="FileUri">上传成功后，输出文件FTP完整路径</param>
         /// <param name="ifCredential">是否启用身份验证</param>
         /// <param name="updateProgress">进度条方法</param>
         /// <returns></returns>
-        public static bool FtpUploadFile(string localFullPathName, FTPSeviceInfo Info, List<string> Paths, out string FileUri, bool ifCredential, Action<int, int> updateProgress = null)
+        public static bool FtpUploadFile(FileInfo file, string FtpUserName,string FtpPwd,string Uri, out string FileUri, bool ifCredential=true, Action<int, int> updateProgress = null)
         {
             FtpWebRequest reqFTP;
             Stream stream = null;
@@ -245,30 +276,21 @@ namespace FileTools
             FileStream fs = null;
             try
             {
-                if (Info.FTPServiceIP == null || Info.FTPServiceIP.Trim().Length == 0)
+                if (Uri == null || Uri.Trim().Length == 0)
                 {
                     throw new Exception("ftp上传目标服务器地址未设置！");
                 }
-                FileInfo finfo = new FileInfo(localFullPathName);
+                FileInfo finfo = file;
                 var DateStr = DateTime.Now.ToString("yyyyMMdd");
                 var PathStr = string.Empty;
-                var uriStr = "ftp://" + Info.FTPServiceIP + "/";
-                if (Paths != null)
-                {
-                    Paths.ForEach(m =>
-                    {
-                        uriStr += m;
-                        MakeDir(m, Info);
-                        uriStr += "/";
-                    });
-                }
+                var uriStr = Uri;
                 uriStr += finfo.Name;
                 Uri uri = new Uri(uriStr);
                 reqFTP = (FtpWebRequest)FtpWebRequest.Create(uri);
                 reqFTP.KeepAlive = false;
                 reqFTP.UseBinary = true;
                 if(ifCredential)
-                    reqFTP.Credentials = new NetworkCredential(Info.FTPUserName, Info.FTPUserPwd);//用户，密码
+                reqFTP.Credentials = new NetworkCredential(FtpUserName, FtpPwd);//用户，密码
                 reqFTP.Method = WebRequestMethods.Ftp.UploadFile;//向服务器发出下载请求命令
                 reqFTP.ContentLength = finfo.Length;//为request指定上传文件的大小
                 response = reqFTP.GetResponse() as FtpWebResponse;
@@ -327,6 +349,57 @@ namespace FileTools
             }
         }
 
+        /// <summary>
+        /// 上传文件到FTP服务器
+        /// </summary>
+        /// <param name="ServiceIP">文件名以及详细路径</param>
+        /// <param name="Info"></param>
+        /// <param name="Paths"></param>
+        /// <param name="FileUri"></param>
+        /// <returns></returns>
+        public static bool FtpUploadFile(string ServiceIP, FTPSeviceInfo Info,List<string> Paths, out string FileUri, bool ifCredential, Action<int, int> updateProgress = null)
+        {
+            string uri = "ftp://" + Info.FTPServiceIP + "/";
+            if (Paths != null && Paths.Count > 1)
+            {
+                Paths.ForEach(m => 
+                {
+                    if (m != null && m != string.Empty)
+                    {
+                        uri += m;
+                        uri += "/";
+                    }
+                });
+            }
+            return FtpUploadFile(new FileInfo(ServiceIP), Info.FTPUserName,Info.FTPUserPwd, uri, out FileUri, true);
+        }
+
+        /// <summary>
+        /// 上传文件至FTP服务器(不需要验证)
+        /// </summary>
+        /// <param name="file">文件对象</param>
+        /// <param name="uri">上传地址</param>
+        /// <returns></returns>
+        public static bool FtpUploadFile(FileInfo file, string uri)
+        {
+            string FileUri = string.Empty;
+            return FtpUploadFile(file, "", "", uri, out FileUri, false);
+        }
+
+        /// <summary>
+        /// 上传文件至FTP服务器(不需要验证)
+        /// </summary>
+        /// <param name="localFullPathName">本地文件路径</param>
+        /// <param name="uri">上传地址</param>
+        /// <returns></returns>
+        public static bool FtpUploadFile(string localFullPathName,string uri)
+        {
+            string FileUri = string.Empty;
+            return FtpUploadFile(new FileInfo(localFullPathName),uri);
+        }
+
+
+
         #endregion
 
         #region 获取已经上传的文件大小
@@ -360,30 +433,22 @@ namespace FileTools
 
         #region FTP服务器文件操作(删除,重命名,创建文件夹)
 
-
         /// <summary>
-        ///在ftp服务器上创建文件目录
+        /// 在ftp服务器上创建文件目录
         /// </summary>
-        /// <param name="dirName">文件目录</param>
-        /// <param name="ServiceIP">FTP服务器IP</param>
+        /// <param name="uri"></param>
+        /// <param name="FTPUserName">用户名</param>
+        /// <param name="FTPUserName">密码</param>
         /// <returns></returns>
-        public static bool MakeDir(string dirName, FTPSeviceInfo Info)
+        public static bool MakeDir(string uri, string FTPUserName, string FTPUserPwd)
         {
             try
             {
-                string url = string.Empty;
-                var uriStr = "ftp://" + Info.FTPServiceIP + "/";
-                bool b = RemoteFtpDirExists(dirName, Info);
-                if (b)
-                {
-                    return true;
-                }
-                uriStr += dirName;
-                FtpWebRequest reqFtp = (FtpWebRequest)FtpWebRequest.Create(new Uri(uriStr));
+                FtpWebRequest reqFtp = (FtpWebRequest)FtpWebRequest.Create(new Uri(uri));
                 reqFtp.UseBinary = true;
                 // reqFtp.KeepAlive = false;
                 reqFtp.Method = WebRequestMethods.Ftp.MakeDirectory;
-                reqFtp.Credentials = new NetworkCredential(Info.FTPUserName, Info.FTPUserPwd);
+                reqFtp.Credentials = new NetworkCredential(FTPUserName, FTPUserPwd);
                 FtpWebResponse response = (FtpWebResponse)reqFtp.GetResponse();
                 response.Close();
                 return true;
@@ -393,11 +458,30 @@ namespace FileTools
                 return false;
                 throw;
             }
-
         }
 
         /// <summary>
-        /// 在ftp服务器上创建文件目录
+        ///在ftp服务器上创建文件目录
+        /// </summary>
+        /// <param name="uri">文件目录</param>
+        /// <param name="Info">服务器信息</param>
+        /// <returns></returns>
+        public static bool MakeDir(string uri, FTPSeviceInfo Info)
+        {
+            string url = string.Empty;
+            var uriStr = "ftp://" + Info.FTPServiceIP + "/";
+            bool b = RemoteFtpDirExists(uri, Info);
+            if (b)
+            {
+                return true;
+            }
+            uriStr += uri;
+            MakeDir(uri, Info.FTPUserName, Info.FTPUserPwd);
+            return true;
+        }
+
+        /// <summary>
+        /// 在ftp服务器上创建文件目录(批量)
         /// </summary>
         /// <param name="Paths">路径集合</param>
         /// <param name="Info">服务器信息</param>
@@ -424,19 +508,23 @@ namespace FileTools
             return true;
         }
 
+
+
+
         /// <summary>
         /// 判断ftp上的文件目录是否存在
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="ServiceIP">FTP服务器IP</param>
+        /// <param name="uri"></param>
+        /// <param name="FtpUserName"></param>
+        /// <param name="FtpUserPwd"></param>
         /// <returns></returns>
-        public static bool RemoteFtpDirExists(string path, FTPSeviceInfo Info)
+        public static bool RemoteFtpDirExists(string uri, string FtpUserName,string FtpUserPwd)
         {
             string url = string.Empty;
-            url = Info.FTPServiceIP;
+            url = uri;
             FtpWebRequest reqFtp = (FtpWebRequest)FtpWebRequest.Create(new Uri(url));
             reqFtp.UseBinary = true;
-            reqFtp.Credentials = new NetworkCredential(Info.FTPUserName, Info.FTPUserPwd);
+            reqFtp.Credentials = new NetworkCredential(FtpUserName, FtpUserPwd);
             reqFtp.Method = WebRequestMethods.Ftp.ListDirectory;
             FtpWebResponse resFtp = null;
             try
@@ -454,6 +542,17 @@ namespace FileTools
                 }
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 判断ftp上的文件目录是否存在
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="Info">服务器信息</param>
+        /// <returns></returns>
+        public static bool RemoteFtpDirExists(string uri, FTPSeviceInfo Info)
+        {
+            return RemoteFtpDirExists(uri, Info.FTPUserName, Info.FTPUserPwd);
         }
 
 
@@ -551,7 +650,7 @@ namespace FileTools
         /// <param name="FTPUserName">服务器登录名</param>
         /// <param name="FTPUserPwd">服务器密码</param>
         /// <returns></returns>
-        public bool FileDelete(string Uri, string FTPUserName, string FTPUserPwd)
+        public static bool FileDelete(string Uri, string FTPUserName, string FTPUserPwd)
         {
             bool success = false;
             FtpWebRequest ftpWebRequest = null;
@@ -600,7 +699,7 @@ namespace FileTools
         /// <param name="Uri">文件Uri</param>
         /// <param name="Info">服务器信息</param>
         /// <returns></returns>
-        public bool FileDelete(string Uri, FTPSeviceInfo Info)
+        public static bool FileDelete(string Uri, FTPSeviceInfo Info)
         {
             return FileDelete(Uri, Info.FTPUserName, Info.FTPUserPwd);
         }
@@ -613,7 +712,7 @@ namespace FileTools
         /// <param name="paths"></param>
         /// <param name="FileName"></param>
         /// <returns></returns>
-        public bool FileDelete(FTPSeviceInfo Info,List<string> paths,string FileName)
+        public static bool FileDelete(FTPSeviceInfo Info,List<string> paths,string FileName)
         {
             string uri = string.Empty;
             var uriStr = "ftp://" + Info.FTPServiceIP + "/";
