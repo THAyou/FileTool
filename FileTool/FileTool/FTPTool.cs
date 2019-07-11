@@ -22,19 +22,19 @@ namespace FileTools
         /// <summary>
         /// 初始化，并且设置FTP服务器IP
         /// </summary>
-        /// <param name="FtpID"></param>
-        public FTPTool(string FtpID)
+        /// <param name="FtpIp"></param>
+        public FTPTool(string FtpIp)
         {
-            FTPInfo = new FTPSeviceInfo { FTPServiceIP = FtpID };
+            FTPInfo = new FTPSeviceInfo { FTPServiceIP = FtpIp };
         }
 
         /// <summary>
         /// 初始化，并且设置FTP服务器IP和用户名密码
         /// </summary>
-        /// <param name="FtpID"></param>
-        public FTPTool(string FtpID,string FtpUserName,string FtpPwd)
+        /// <param name="FtpIp"></param>
+        public FTPTool(string FtpIp, string FtpUserName,string FtpPwd)
         {
-            FTPInfo = new FTPSeviceInfo { FTPServiceIP = FtpID, FTPUserName = FtpUserName, FTPUserPwd = FtpPwd };
+            FTPInfo = new FTPSeviceInfo { FTPServiceIP = FtpIp, FTPUserName = FtpUserName, FTPUserPwd = FtpPwd };
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace FileTools
         /// <returns></returns>
         public bool DownloadFile(string DownPath,string uri)
         {
-            return FTPHelp.FtpDownload(DownPath, uri, FTPInfo);
+            return FTPHelp.FtpDownload(uri, DownPath, FTPInfo);
         }
 
         /// <summary>
