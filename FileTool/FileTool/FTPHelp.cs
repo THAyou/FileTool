@@ -472,7 +472,7 @@ namespace FileTools
             var uriStr = "ftp://" + Info.FTPServiceIP + "/";
             uriStr += uri;
             bool b = RemoteFtpDirExists(uriStr, Info);
-            if (b)
+            if (!b)
             {
                 return true;
             }
@@ -525,7 +525,7 @@ namespace FileTools
             FtpWebRequest reqFtp = (FtpWebRequest)FtpWebRequest.Create(new Uri(url));
             reqFtp.UseBinary = true;
             reqFtp.Credentials = new NetworkCredential(FtpUserName, FtpUserPwd);
-            reqFtp.Method = WebRequestMethods.Ftp.ListDirectory;
+            reqFtp.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
             FtpWebResponse resFtp = null;
             try
             {
@@ -749,4 +749,5 @@ namespace FileTools
         }
         #endregion
     }
+
 }
