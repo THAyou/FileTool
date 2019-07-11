@@ -9,8 +9,9 @@ namespace FileTools
     /// <summary>
     /// FileTool 文件工具
     /// 作者:Tyou 2019-03-19
-    /// 版本:v1.0
+    /// 版本:v1.1
     /// 用于快捷对文件进行[读取,复制,剪切，删除,修改，重命名]操作
+    /// *增加判断路径是否为空的代码
     /// </summary>
     public class FileTool
     {
@@ -18,7 +19,7 @@ namespace FileTools
 
         private string _path = Directory.GetCurrentDirectory();
 
-        private List<FileInfo> files =  null;
+        private List<FileInfo> files = null;
 
         private List<DirectoryInfo> Directorys = null;
 
@@ -30,7 +31,7 @@ namespace FileTools
         /// 该目录下读取到文件列表
         /// </summary>
         public List<FileDetails> FileDetailsList = new List<FileDetails>();
-        
+
         /// <summary>
         /// 目录
         /// </summary>
@@ -54,7 +55,7 @@ namespace FileTools
         /// </summary>
         /// <param name="path">目录</param>
         /// <param name="FileName">文件名</param>
-        public FileTool(string path,string FileName)
+        public FileTool(string path, string FileName)
         {
             _path = path;
             _FileName = FileName;
@@ -63,6 +64,10 @@ namespace FileTools
 
         private void LoadDirectoryInfo()
         {
+            if (!Directory.Exists(_path))
+            {
+                Directory.CreateDirectory(_path);
+            }
             root = new DirectoryInfo(_path);
             files = root.GetFiles().ToList();
             Directorys = root.GetDirectories().ToList();
@@ -86,7 +91,7 @@ namespace FileTools
 
         private void Write(string value, FileMode mode)
         {
-            byte[] myByte = System.Text.Encoding.UTF8.GetBytes(value); 
+            byte[] myByte = System.Text.Encoding.UTF8.GetBytes(value);
             FileStream = new FileStream(_path + "/" + _FileName, mode, FileAccess.Write);
             FileStream.Write(myByte, 0, myByte.Length);
             FileStream.Flush();
@@ -137,7 +142,7 @@ namespace FileTools
         /// </summary>
         /// <param name="path">路径,可无</param>
         /// <returns></returns>
-        public List<FileDetails> GetFileeach(string path=null)
+        public List<FileDetails> GetFileeach(string path = null)
         {
             if (path != null && path != "")
             {
@@ -156,7 +161,7 @@ namespace FileTools
         /// <returns></returns>
         public FileStream GetFileStream(string PathOrFileName, bool IsPathFileName = false)
         {
-            var result=ReadFile(PathOrFileName, IsPathFileName);
+            var result = ReadFile(PathOrFileName, IsPathFileName);
             if (result == "success")
             {
                 return FileStream;
@@ -204,7 +209,7 @@ namespace FileTools
         {
             try
             {
-                Write(value,FileMode.Append);
+                Write(value, FileMode.Append);
                 return "success";
             }
             catch (Exception ex)
@@ -239,13 +244,13 @@ namespace FileTools
         /// <param name="Path">路径目录</param>
         /// <param name="FileName">文件名</param>
         /// <returns></returns>
-        public string AppendFile(string value, string Path,string FileName)
+        public string AppendFile(string value, string Path, string FileName)
         {
             try
             {
                 _FileName = FileName;
                 _path = Path;
-                Write(value,FileMode.Append);
+                Write(value, FileMode.Append);
                 return "success";
             }
             catch (Exception ex)
@@ -284,6 +289,10 @@ namespace FileTools
         {
             try
             {
+                if (!Directory.Exists(_path))
+                {
+                    Directory.CreateDirectory(_path);
+                }
                 FileStream = File.Create(_path + "/" + _FileName);
                 return "success";
             }
@@ -291,7 +300,7 @@ namespace FileTools
             {
                 return ex.ToString();
             }
-            
+
         }
 
         /// <summary>
@@ -306,6 +315,10 @@ namespace FileTools
             {
                 _FileName = FileName;
                 _path = Path;
+                if (!Directory.Exists(_path))
+                {
+                    Directory.CreateDirectory(_path);
+                }
                 Read();
                 return "success";
             }
@@ -356,12 +369,12 @@ namespace FileTools
         /// <param name="NewFileName">新文件名</param>
         /// <param name="OldFileName">旧文件名（可为空）</param>
         /// <returns></returns>
-        public string ReFileName(string NewFileName,string OldFileName = null)
+        public string ReFileName(string NewFileName, string OldFileName = null)
         {
             try
             {
                 var FileName = string.Empty;
-                if (OldFileName!=null)
+                if (OldFileName != null)
                 {
                     FileName = _path + "/" + OldFileName;
                 }
@@ -387,11 +400,11 @@ namespace FileTools
         /// <param name="OldPath">旧目录(可为空)</param>
         /// <param name="FileName">文件名(可为空)</param>
         /// <returns></returns>
-        public string MoveFile(string NewPath,string OldPath=null,string FileName=null)
+        public string MoveFile(string NewPath, string OldPath = null, string FileName = null)
         {
             try
             {
-                
+
                 if (OldPath != null)
                 {
                     _path = OldPath;
