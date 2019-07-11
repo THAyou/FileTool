@@ -9,14 +9,14 @@ namespace FileTools
     /// 文件式同步工具
     /// Dgs 2019-07-10 17:01:00
     /// </summary>
-    public class FileUpLoadHelp<T>
+    public class FileUpLoadHelpDemo<T>
     {
-        public FileUpLoadHelp()
+        public FileUpLoadHelpDemo()
         {
             FTPInfo = new FTPSeviceInfo();
         }
 
-        public FileUpLoadHelp(string FTPServiceIP)
+        public FileUpLoadHelpDemo(string FTPServiceIP)
         {
             FTPInfo = new FTPSeviceInfo();
             FTPInfo.FTPServiceIP = FTPServiceIP;
@@ -24,7 +24,7 @@ namespace FileTools
             FTPInfo.FTPUserPwd = string.Empty;
         }
 
-        public FileUpLoadHelp(string FTPServiceIP, string FTPUserName, string FTPUserPwd)
+        public FileUpLoadHelpDemo(string FTPServiceIP, string FTPUserName, string FTPUserPwd)
         {
             FTPInfo = new FTPSeviceInfo();
             FTPInfo.FTPServiceIP = FTPServiceIP;
