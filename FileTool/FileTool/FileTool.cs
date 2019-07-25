@@ -9,7 +9,6 @@ namespace FileTools
     /// <summary>
     /// FileTool 文件工具
     /// 作者:Tyou 2019-03-19
-    /// 版本:v1.1
     /// 用于快捷对文件进行[读取,复制,剪切，删除,修改，重命名]操作
     /// *增加判断路径是否为空的代码
     /// </summary>
@@ -98,6 +97,21 @@ namespace FileTools
             FileStream.Close();
         }
 
+        private void WritePart(string value)
+        {
+            byte[] myByte = System.Text.Encoding.UTF8.GetBytes(value);
+            FileStream.Write(myByte, 0, myByte.Length);
+        }
+
+        /// <summary>
+        /// 开始写入
+        /// </summary>
+        /// <param name="mode"></param>
+        private void OpenStream(FileMode mode)
+        {
+            FileStream = new FileStream(_path + "/" + _FileName, mode, FileAccess.Write);
+        }
+
         private string Read()
         {
             FileStream = new FileStream(_path + "/" + _FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -107,6 +121,26 @@ namespace FileTools
             FileStream.Flush();
             FileStream.Close();
             return Encoding.UTF8.GetString(Byte);
+        }
+
+        private string Read(string PathAndFileName)
+        {
+            FileStream = new FileStream(PathAndFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            int fsLen = (int)FileStream.Length;
+            byte[] Byte = new byte[fsLen];
+            int r = FileStream.Read(Byte, 0, Byte.Length);
+            FileStream.Flush();
+            FileStream.Close();
+            return Encoding.UTF8.GetString(Byte);
+        }
+
+        /// <summary>
+        /// 关闭文件流
+        /// </summary>
+        private void CloseStream()
+        {
+            FileStream.Flush();
+            FileStream.Close();
         }
 
         /// <summary>
@@ -194,6 +228,17 @@ namespace FileTools
         /// <summary>
         /// 获取文件内容
         /// </summary>
+        /// <param name="Path">路径目录</param>
+        /// <param name="FileName">文件</param>
+        /// <returns>文件内容</returns>
+        public string GetFileContent(string PathAndFileName)
+        {
+            return Read(PathAndFileName);
+        }
+
+        /// <summary>
+        /// 获取文件内容
+        /// </summary>
         /// <returns>文件内容</returns>
         public string GetFileContent()
         {
@@ -218,6 +263,59 @@ namespace FileTools
             }
         }
 
+        /// <summary>
+        /// 文件写入部分数据（写完后记得关闭）
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string AppendPartFile(string value)
+        {
+            try
+            {
+                WritePart(value);
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 开始写入
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string OpenAppend()
+        {
+            try
+            {
+                OpenStream(FileMode.Append);
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        /// <summary>
+        /// 停止写入
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string CloseAppend()
+        {
+            try
+            {
+                CloseStream();
+                return "success";
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         /// <summary>
         /// 对文件重写内容
         /// </summary>
