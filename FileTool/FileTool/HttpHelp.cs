@@ -129,6 +129,42 @@ namespace BT.Preservation.Bll.HTTPHelp
             response.Close();
             return result;
         }
+
+        /// <summary>
+        /// Http下载
+        /// </summary>
+        /// <param name="HttpFileUrl"></param>
+        /// <param name="FSavePath"></param>
+        /// <returns></returns>
+        private static string HttpDownLoadFile(string HttpFileUrl, string FSavePath,string SaveFileName)
+        {
+            HttpFileUrl = HttpFileUrl.Replace("\\", "/");
+            var request = WebRequest.Create(HttpFileUrl);
+            request.Method = WebRequestMethods.Http.Get;
+            request.ContentType = "application/octet-stream";
+            var response = request.GetResponse();
+            var stream = response.GetResponseStream();
+            var directPath = FSavePath;
+            if (!Directory.Exists(directPath))
+            {
+                Directory.CreateDirectory(directPath);
+            }
+
+            string filePath = directPath + SaveFileName;
+            var fileStream = new FileStream(filePath, FileMode.CreateNew);
+
+            var bytes = new byte[2048];
+            var count = stream.Read(bytes, 0, bytes.Length);
+            while (count > 0)
+            {
+                fileStream.Write(bytes, 0, count);
+                count = stream.Read(bytes, 0, bytes.Length);
+            }
+            stream.Close();
+            fileStream.Close();
+
+            return filePath;
+        }
     }
 
     /// <summary>
