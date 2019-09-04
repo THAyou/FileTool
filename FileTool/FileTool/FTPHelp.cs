@@ -523,6 +523,7 @@ namespace FileTools
             string url = string.Empty;
             url = uri;
             FtpWebRequest reqFtp = (FtpWebRequest)FtpWebRequest.Create(new Uri(url));
+            StreamReader reader = null;
             reqFtp.UseBinary = true;
             reqFtp.Credentials = new NetworkCredential(FtpUserName, FtpUserPwd);
             reqFtp.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
@@ -531,7 +532,14 @@ namespace FileTools
             {
                 resFtp = (FtpWebResponse)reqFtp.GetResponse();
                 FtpStatusCode code = resFtp.StatusCode;//OpeningData
+                reader = new StreamReader(resFtp.GetResponseStream(), Encoding.UTF8);
+                string line = reader.ReadLine();
+                reader.Close();
                 resFtp.Close();
+                if (line == null)
+                {
+                    return false;
+                }
                 return true;
             }
             catch (Exception ex)
@@ -540,6 +548,7 @@ namespace FileTools
                 {
                     resFtp.Close();
                 }
+                reader.Close();
                 return false;
             }
         }
