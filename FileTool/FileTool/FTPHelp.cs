@@ -472,7 +472,7 @@ namespace FileTools
             var uriStr = "ftp://" + Info.FTPServiceIP + "/";
             uriStr += uri;
             bool b = RemoteFtpDirExists(uriStr, Info);
-            if (!b)
+            if (b)
             {
                 return true;
             }
